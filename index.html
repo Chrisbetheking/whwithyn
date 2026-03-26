@@ -883,30 +883,47 @@
     <section class="mailbox-card">
       <div class="mailbox-title">💌 悄悄话收集信箱</div>
       <div class="mailbox-sub">
-        这个版本已经改成 GitHub Pages 可用模式。<br>
-        留言会保存在当前浏览器中，不再依赖 Vercel API。
+        留言会直接发送到 WH 的邮箱 💖
       </div>
 
       <div style="text-align:center;">
-        <span class="soft-badge">GitHub Pages 静态版已开启</span>
+        <span class="soft-badge">GitHub Pages + EmailJS 已开启</span>
       </div>
 
-      <div class="mailbox-grid" style="margin-top:18px;">
-        <input id="mailboxName" class="mailbox-field" type="text" placeholder="你的名字 / 昵称">
-        <input id="mailboxPassword" class="mailbox-field" type="password" placeholder="输入悄悄话密码">
-        <textarea id="mailboxMessage" class="mailbox-area" placeholder="写下你的悄悄话吧……"></textarea>
-      </div>
+      <form id="love-mail-form">
+        <div class="mailbox-grid" style="margin-top:18px;">
+          <input
+            name="from_name"
+            class="mailbox-field"
+            type="text"
+            placeholder="你的名字 / 昵称"
+            required
+          />
 
-      <div class="mailbox-actions">
-        <button class="b1" onclick="sendSecretMessage()">保存悄悄话 💖</button>
-        <button class="b5" onclick="openOwnerInbox()">打开本机收件箱 🔐</button>
-      </div>
+          <input
+            name="reply_to"
+            class="mailbox-field"
+            type="email"
+            placeholder="你的邮箱（可选）"
+          />
+
+          <textarea
+            name="message"
+            class="mailbox-area"
+            placeholder="写下你的悄悄话吧……"
+            required
+          ></textarea>
+        </div>
+
+        <div class="mailbox-actions">
+          <button type="submit" class="b1">发送悄悄话 💖</button>
+        </div>
+      </form>
 
       <div class="mailbox-result" id="mailboxResult"></div>
 
       <div class="mailbox-note">
-        提示：这个版本只适合 GitHub Pages。<br>
-        留言只会保存在当前浏览器，不会上传到服务器。
+        提示：留言会通过 EmailJS 发到邮箱，不再保存在本地浏览器。
       </div>
     </section>
 
@@ -933,7 +950,12 @@
     <div class="love-burst-text">王鸿会永远爱着杨念</div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
+    emailjs.init({
+      publicKey: "UQkavrAgxXWtrvV2U"
+    });
+
     const loveDate = new Date("2026-02-04T00:00:00");
 
     const counterEl = document.getElementById("counter");
@@ -953,11 +975,8 @@
     const clickHearts = document.getElementById("clickHearts");
     const secretInput = document.getElementById("secretInput");
     const mailboxResult = document.getElementById("mailboxResult");
+    const loveMailForm = document.getElementById("love-mail-form");
     const loveBurstOverlay = document.getElementById("loveBurstOverlay");
-
-    const MESSAGE_PASSWORD = "yn520";
-    const OWNER_PASSWORD = "wh520";
-    const STORAGE_KEY = "whyn_secret_messages";
 
     const mainText = `YN，
 
@@ -1239,95 +1258,27 @@ WH ❤ YN
       }
     }
 
-    function getMessages() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      } catch {
-        return [];
-      }
-    }
+    loveMailForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    function saveMessages(messages) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    }
+      mailboxResult.textContent = "正在发送中，请稍等…";
 
-    function makeMessageId() {
-      return "STAR-" + Date.now().toString().slice(-8);
-    }
-
-    function formatNow() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      const h = String(now.getHours()).padStart(2, "0");
-      const min = String(now.getMinutes()).padStart(2, "0");
-      const s = String(now.getSeconds()).padStart(2, "0");
-      return `${y}-${m}-${d} ${h}:${min}:${s}`;
-    }
-
-    function sendSecretMessage() {
-      const name = document.getElementById("mailboxName").value.trim();
-      const password = document.getElementById("mailboxPassword").value.trim();
-      const message = document.getElementById("mailboxMessage").value.trim();
-
-      if (!name || !password || !message) {
-        mailboxResult.textContent = "请把名字、密码和悄悄话都填写完整哦。";
-        return;
-      }
-
-      if (password !== MESSAGE_PASSWORD) {
-        mailboxResult.textContent = "悄悄话密码不正确，暂时不能保存。";
-        return;
-      }
-
-      const messages = getMessages();
-      const item = {
-        id: makeMessageId(),
-        name,
-        message,
-        time: formatNow()
-      };
-
-      messages.push(item);
-      saveMessages(messages);
-
-      mailboxResult.textContent = `保存成功 💖 你的星语编号是：${item.id}`;
-      document.getElementById("mailboxMessage").value = "";
-      document.getElementById("mailboxPassword").value = "";
-      showerOfHearts(14);
-    }
-
-    function openOwnerInbox() {
-      const ownerPassword = prompt("请输入主人查看密码：");
-      if (!ownerPassword) return;
-
-      if (ownerPassword !== OWNER_PASSWORD) {
-        showPopup("收件箱访问失败", "密码不正确，无法查看本机留言。");
-        return;
-      }
-
-      const data = getMessages();
-
-      if (!Array.isArray(data) || data.length === 0) {
-        showPopup("主人收件箱", "目前这个浏览器里还没有新的悄悄话。");
-        return;
-      }
-
-      const content = data
-        .slice()
-        .reverse()
-        .map((item, index) => {
-          return `第 ${index + 1} 条
-星语编号：${item.id || "未生成"}
-来自：${item.name || "匿名"}
-时间：${item.time || "未知时间"}
-内容：${item.message || ""}`;
-        })
-        .join("\n\n————————————\n\n");
-
-      showPopup("主人收件箱", content);
-    }
+      emailjs.sendForm(
+        "service_whyn1314",
+        "template_djmbxtd",
+        "#love-mail-form"
+      ).then(
+        function () {
+          mailboxResult.textContent = "发送成功 💖 WH 已经收到啦！";
+          loveMailForm.reset();
+          showerOfHearts(14);
+        },
+        function (error) {
+          console.error("EmailJS error:", error);
+          mailboxResult.textContent = "发送失败了，稍后再试试。";
+        }
+      );
+    });
 
     function createBackgroundGlow() {
       const colors = [
