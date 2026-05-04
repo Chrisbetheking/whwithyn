@@ -4,7 +4,7 @@ const SUBMIT_PASSWORD = process.env.SECRET_SUBMIT_PASSWORD || "260204";
 const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY;
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID;
-const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || "";
+const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || ""; 
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
