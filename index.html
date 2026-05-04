@@ -3,734 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WH ❤ YN | Love YN System Pro</title>
+
+  <title>王鸿 ❤ 杨念 | WH & YN</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg1: #0a0d2b;
-      --bg2: #141b4d;
-      --bg3: #231a45;
-      --glass: rgba(255, 255, 255, 0.08);
-      --glass-2: rgba(255, 255, 255, 0.12);
-      --line: rgba(255, 255, 255, 0.14);
-      --pink: #ffd6e7;
-      --pink-2: #ff83b2;
-      --blue: #cfe0ff;
-      --text: #f8f8ff;
-      --muted: #c9d5ff;
-      --deep: #10183d;
-      --card: rgba(10, 16, 40, 0.42);
-      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
-    }
-
-    html, body {
-      width: 100%;
-      min-height: 100%;
-    }
-
-    body {
-      min-height: 100vh;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(255, 132, 176, 0.12), transparent 20%),
-        radial-gradient(circle at 80% 30%, rgba(144, 180, 255, 0.14), transparent 22%),
-        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 42%, var(--bg3) 100%);
-      position: relative;
-    }
-
-    .bg-layer,
-    .stars,
-    .hearts,
-    .meteors,
-    .click-hearts {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
-    }
-
-    .glow {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(48px);
-      opacity: 0.16;
-      animation: glowDrift 11s ease-in-out infinite alternate;
-    }
-
-    @keyframes glowDrift {
-      from { transform: translate(0, 0) scale(1); }
-      to { transform: translate(20px, -24px) scale(1.08); }
-    }
-
-    .star {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: white;
-      border-radius: 50%;
-      opacity: 0.8;
-      animation: twinkle ease-in-out infinite;
-    }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.15; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.8); }
-    }
-
-    .floating-heart {
-      position: absolute;
-      bottom: -40px;
-      opacity: 0.85;
-      filter: drop-shadow(0 0 10px rgba(255, 125, 170, 0.45));
-      animation: floatUp linear forwards;
-      user-select: none;
-    }
-
-    @keyframes floatUp {
-      0% {
-        transform: translateY(0) translateX(0) scale(0.9);
-        opacity: 0;
-      }
-      10% { opacity: 0.95; }
-      100% {
-        transform: translateY(-120vh) translateX(30px) scale(1.35);
-        opacity: 0;
-      }
-    }
-
-    .meteor {
-      position: absolute;
-      width: 110px;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.95));
-      transform: rotate(-35deg);
-      opacity: 0.9;
-      animation: meteorFly 1.8s linear forwards;
-      filter: drop-shadow(0 0 10px rgba(255,255,255,0.4));
-    }
-
-    @keyframes meteorFly {
-      from {
-        transform: translate(0, 0) rotate(-35deg);
-        opacity: 0;
-      }
-      10% { opacity: 1; }
-      to {
-        transform: translate(-300px, 220px) rotate(-35deg);
-        opacity: 0;
-      }
-    }
-
-    .tap-heart {
-      position: absolute;
-      font-size: 18px;
-      animation: tapBurst 1s ease-out forwards;
-      filter: drop-shadow(0 0 8px rgba(255, 117, 163, 0.5));
-      user-select: none;
-      pointer-events: none;
-    }
-
-    @keyframes tapBurst {
-      0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0.8);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.5);
-      }
-    }
-
-    .wrap {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 22px 14px 90px;
-    }
-
-    .glass-card {
-      background: var(--glass);
-      border: 1px solid var(--line);
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow);
-      border-radius: 28px;
-    }
-
-    .hero {
-      padding: 28px 18px 24px;
-      text-align: center;
-    }
-
-    .title {
-      font-size: clamp(34px, 8vw, 74px);
-      font-weight: 900;
-      color: var(--pink);
-      letter-spacing: 1px;
-      text-shadow: 0 0 22px rgba(255, 125, 170, 0.28);
-      animation: titlePulse 2.4s ease-in-out infinite;
-    }
-
-    @keyframes titlePulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.025); }
-    }
-
-    .sub {
-      margin-top: 14px;
-      color: var(--blue);
-      font-size: 16px;
-      line-height: 1.9;
-    }
-
-    .big-heart {
-      margin: 18px 0 10px;
-      font-size: clamp(76px, 16vw, 146px);
-      animation: heartBeat 1.25s infinite;
-      filter: drop-shadow(0 0 16px rgba(255, 109, 160, 0.32));
-    }
-
-    @keyframes heartBeat {
-      0%, 100% { transform: scale(1); }
-      18% { transform: scale(1.12); }
-      35% { transform: scale(0.96); }
-      52% { transform: scale(1.07); }
-    }
-
-    .tag-row {
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .tag {
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #edf2ff;
-      font-size: 13px;
-    }
-
-    .section {
-      margin-top: 18px;
-      padding: 18px 16px;
-      border-radius: 24px;
-      background: var(--card);
-      border: 1px solid rgba(153, 181, 255, 0.16);
-    }
-
-    .section-title {
-      font-size: 14px;
-      color: #a9c6ff;
-      text-align: center;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
-
-    .counter {
-      text-align: center;
-      font-size: clamp(20px, 4.8vw, 34px);
-      font-weight: 800;
-      line-height: 1.75;
-      color: #fff3f8;
-    }
-
-    .mini-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .mini-item {
-      padding: 14px 10px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.1);
-      text-align: center;
-    }
-
-    .mini-item .n {
-      display: block;
-      font-size: 22px;
-      font-weight: 800;
-      color: #ffe3ef;
-      margin-bottom: 6px;
-    }
-
-    .mini-item .t {
-      font-size: 12px;
-      color: #c9d4ff;
-    }
-
-    .btns {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    button {
-      border: none;
-      border-radius: 16px;
-      padding: 14px 12px;
-      font-size: 15px;
-      font-weight: 700;
-      color: white;
-      cursor: pointer;
-      transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    button:hover {
-      opacity: 0.96;
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
-    }
-
-    button:active {
-      transform: scale(0.97);
-    }
-
-    .b1 { background: linear-gradient(135deg, #ff6d9c, #ff8db6); }
-    .b2 { background: linear-gradient(135deg, #6e8dff, #91a8ff); }
-    .b3 { background: linear-gradient(135deg, #2fc89f, #5edcbc); }
-    .b4 { background: linear-gradient(135deg, #ff9d57, #ffb670); }
-    .b5 { background: linear-gradient(135deg, #ad78ff, #c091ff); }
-    .b6 { background: linear-gradient(135deg, #4db9ff, #7bcfff); }
-
-    .quote-box {
-      margin-top: 18px;
-      padding: 18px 16px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255, 215, 235, 0.16);
-      text-align: center;
-      color: #ffe0eb;
-      line-height: 1.85;
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .typewriter {
-      white-space: pre-wrap;
-      font-size: 17px;
-      line-height: 2;
-      color: #ffe8f2;
-      min-height: 260px;
-    }
-
-    .grid-two {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 16px;
-    }
-
-    .panel-title {
-      color: #ffd8e8;
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .progress-item {
-      margin-bottom: 14px;
-    }
-
-    .progress-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 6px;
-      color: #dbe6ff;
-      font-size: 14px;
-    }
-
-    .bar {
-      width: 100%;
-      height: 10px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .bar > span {
-      display: block;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #ff83b2, #9db8ff);
-      width: 0;
-      animation: fillBar 1.6s ease forwards;
-    }
-
-    @keyframes fillBar {
-      to { width: var(--w); }
-    }
-
-    .timeline {
-      display: grid;
-      gap: 12px;
-    }
-
-    .timeline-item {
-      padding: 14px 14px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 18px;
-    }
-
-    .timeline-item .time {
-      color: #ffbfdb;
-      font-size: 13px;
-      margin-bottom: 6px;
-      font-weight: 700;
-    }
-
-    .timeline-item .desc {
-      color: #edf1ff;
-      line-height: 1.8;
-      font-size: 14px;
-    }
-
-    .future-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .future-item {
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #eef2ff;
-      line-height: 1.8;
-      font-size: 14px;
-    }
-
-    .secret-box {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .secret-box input {
-      flex: 1;
-      border: 1px solid rgba(255,255,255,0.14);
-      outline: none;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.08);
-      color: white;
-      padding: 14px 14px;
-      font-size: 15px;
-    }
-
-    .secret-box input::placeholder {
-      color: #b9c8ef;
-    }
-
-    .mailbox-card {
-      margin-top: 22px;
-      padding: 22px 18px;
-      border-radius: 26px;
-      background: rgba(10, 16, 40, 0.5);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-    }
-
-    .mailbox-title {
-      text-align: center;
-      font-size: 24px;
-      font-weight: 900;
-      color: #ffe1ee;
-      margin-bottom: 8px;
-    }
-
-    .mailbox-sub {
-      text-align: center;
-      color: #cbd8ff;
-      font-size: 14px;
-      line-height: 1.8;
-      margin-bottom: 18px;
-    }
-
-    .mailbox-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .mailbox-field,
-    .mailbox-area {
-      width: 100%;
-      border: 1px solid rgba(255,255,255,0.14);
-      outline: none;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.08);
-      color: white;
-      padding: 14px 14px;
-      font-size: 15px;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .mailbox-field:focus,
-    .mailbox-area:focus,
-    .secret-box input:focus {
-      border-color: rgba(255, 162, 196, 0.8);
-      box-shadow: 0 0 0 4px rgba(255, 131, 178, 0.14);
-    }
-
-    .mailbox-field::placeholder,
-    .mailbox-area::placeholder {
-      color: #b9c8ef;
-    }
-
-    .mailbox-area {
-      min-height: 130px;
-      resize: vertical;
-      grid-column: 1 / -1;
-    }
-
-    .mailbox-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .mailbox-note {
-      margin-top: 14px;
-      text-align: center;
-      color: #d9e4ff;
-      font-size: 13px;
-      line-height: 1.8;
-    }
-
-    .mailbox-result {
-      min-height: 28px;
-      margin-top: 14px;
-      text-align: center;
-      color: #ffe6ef;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .soft-badge {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      font-size: 12px;
-      color: #e8efff;
-    }
-
-    .footer {
-      margin-top: 18px;
-      text-align: center;
-      color: #bfd0f7;
-      line-height: 1.9;
-      font-size: 13px;
-    }
-
-    .popup {
-      position: fixed;
-      inset: 0;
-      z-index: 99;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: rgba(0, 0, 0, 0.58);
-    }
-
-    .popup.show {
-      display: flex;
-    }
-
-    .popup-card {
-      width: min(94vw, 620px);
-      max-height: 86vh;
-      overflow-y: auto;
-      border-radius: 24px;
-      background: #fff8fc;
-      color: #5b3b49;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
-      padding: 22px 18px;
-    }
-
-    .popup-title {
-      text-align: center;
-      font-size: 24px;
-      font-weight: 800;
-      color: #ff5d93;
-      margin-bottom: 12px;
-    }
-
-    .popup-content {
-      white-space: pre-wrap;
-      line-height: 1.95;
-      font-size: 15px;
-    }
-
-    .close-btn {
-      width: 100%;
-      margin-top: 16px;
-      background: linear-gradient(135deg, #ff6d9c, #ff8fb7);
-    }
-
-    .floating-tip {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 10;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(14px);
-      border-radius: 18px;
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.7;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
-    }
-
-    .love-burst-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 120;
-      pointer-events: none;
-      display: none;
-      overflow: hidden;
-    }
-
-    .love-burst-overlay.show {
-      display: block;
-    }
-
-    .love-burst-bg {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255, 120, 170, 0.18), rgba(10, 13, 43, 0.2) 45%, rgba(10, 13, 43, 0.45) 100%);
-      animation: burstFadeIn 0.35s ease;
-    }
-
-    .love-burst-text {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: min(90vw, 900px);
-      text-align: center;
-      font-size: clamp(26px, 5vw, 56px);
-      line-height: 1.5;
-      font-weight: 900;
-      color: #fff3f8;
-      text-shadow:
-        0 0 12px rgba(255, 120, 170, 0.45),
-        0 0 28px rgba(255, 120, 170, 0.35),
-        0 0 48px rgba(255, 255, 255, 0.18);
-      letter-spacing: 1px;
-      padding: 20px 24px;
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-      animation: burstTextPop 0.5s ease;
-    }
-
-    .burst-heart {
-      position: absolute;
-      bottom: -40px;
-      font-size: 18px;
-      opacity: 0;
-      filter: drop-shadow(0 0 10px rgba(255, 117, 163, 0.5));
-      animation: burstHeartFly linear forwards;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    @keyframes burstFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes burstTextPop {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.82);
-      }
-      70% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.05);
-      }
-      100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-      }
-    }
-
-    @keyframes burstHeartFly {
-      0% {
-        opacity: 0;
-        transform: translateY(0) translateX(0) scale(0.8) rotate(0deg);
-      }
-      10% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-120vh) translateX(var(--driftX)) scale(1.4) rotate(var(--rotateDeg));
-      }
-    }
-
-    @media (max-width: 860px) {
-      .btns { grid-template-columns: repeat(2, 1fr); }
-      .grid-two { grid-template-columns: 1fr; }
-      .mini-stats { grid-template-columns: repeat(2, 1fr); }
-      .mailbox-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .wrap { padding: 14px 10px 90px; }
-      .hero { padding: 22px 14px 18px; }
-      .sub { font-size: 14px; line-height: 1.8; }
-      .btns { grid-template-columns: 1fr; }
-      .counter { font-size: 18px; }
-      .quote-box { font-size: 15px; }
-      .typewriter { font-size: 15px; min-height: 220px; }
-      .mini-item .n { font-size: 20px; }
-      .secret-box { flex-direction: column; }
-      .floating-tip {
-        right: 10px;
-        left: 10px;
-        bottom: 10px;
-        text-align: center;
-      }
-      .mailbox-title { font-size: 21px; }
-      .mailbox-card { padding: 18px 14px; }
-      .mailbox-actions { flex-direction: column; }
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg1:#090d2d;--bg2:#141a4d;--bg3:#25183f;--pink:#ffd7e8;--blue:#cfe0ff;--text:#fbf8ff;--card:rgba(10,16,40,.48);--line:rgba(255,255,255,.15);--shadow:0 18px 55px rgba(0,0,0,.3)}
+    html,body{width:100%;min-height:100%}
+    body{min-height:100vh;overflow-x:hidden;overflow-y:auto;font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 18% 12%,rgba(255,132,176,.16),transparent 24%),radial-gradient(circle at 82% 24%,rgba(144,180,255,.16),transparent 24%),linear-gradient(180deg,var(--bg1),var(--bg2) 42%,var(--bg3));position:relative}
+    .bg-layer,.stars,.hearts,.meteors,.click-hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+    .glow{position:absolute;border-radius:50%;filter:blur(48px);opacity:.18;animation:glowDrift 11s ease-in-out infinite alternate}
+    @keyframes glowDrift{from{transform:translate(0,0) scale(1)}to{transform:translate(20px,-24px) scale(1.08)}}
+    .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.8;animation:twinkle ease-in-out infinite}
+    @keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:1;transform:scale(1.8)}}
+    .floating-heart{position:absolute;bottom:-40px;opacity:.86;filter:drop-shadow(0 0 10px rgba(255,125,170,.45));animation:floatUp linear forwards;user-select:none}
+    @keyframes floatUp{0%{transform:translateY(0) translateX(0) scale(.9);opacity:0}10%{opacity:.95}100%{transform:translateY(-120vh) translateX(30px) scale(1.35);opacity:0}}
+    .meteor{position:absolute;width:110px;height:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.95));transform:rotate(-35deg);opacity:.9;animation:meteorFly 1.8s linear forwards;filter:drop-shadow(0 0 10px rgba(255,255,255,.4))}
+    @keyframes meteorFly{from{transform:translate(0,0) rotate(-35deg);opacity:0}10%{opacity:1}to{transform:translate(-300px,220px) rotate(-35deg);opacity:0}}
+    .tap-heart{position:absolute;font-size:18px;animation:tapBurst 1s ease-out forwards;filter:drop-shadow(0 0 8px rgba(255,117,163,.5));user-select:none;pointer-events:none}
+    @keyframes tapBurst{0%{opacity:1;transform:translate(-50%,-50%) scale(.8)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.5)}}
+    .wrap{position:relative;z-index:2;width:100%;max-width:980px;margin:0 auto;padding:22px 14px 90px}
+    .glass-card{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06));border:1px solid var(--line);backdrop-filter:blur(18px);box-shadow:var(--shadow);border-radius:30px}
+    .glass-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 0%,rgba(255,214,231,.23),transparent 34%),radial-gradient(circle at 82% 12%,rgba(207,224,255,.18),transparent 30%);pointer-events:none}
+    .hero{padding:34px 20px 28px;text-align:center}
+    .hero>*{position:relative;z-index:1}
+    .hero-kicker{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;margin-bottom:14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#eaf0ff;font-size:13px;letter-spacing:.5px}
+    .title{font-size:clamp(36px,8vw,76px);font-weight:900;color:var(--pink);letter-spacing:1px;text-shadow:0 0 24px rgba(255,125,170,.3);animation:titlePulse 2.8s ease-in-out infinite}
+    .name-subtitle{margin-top:8px;color:rgba(255,255,255,.78);font-size:14px;letter-spacing:3px;text-transform:uppercase}
+    @keyframes titlePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+    .sub{max-width:760px;margin:16px auto 0;color:var(--blue);font-size:16px;line-height:1.95}
+    .big-heart{margin:18px 0 10px;font-size:clamp(76px,16vw,146px);animation:heartBeat 1.25s infinite;filter:drop-shadow(0 0 16px rgba(255,109,160,.32))}
+    @keyframes heartBeat{0%,100%{transform:scale(1)}18%{transform:scale(1.12)}35%{transform:scale(.96)}52%{transform:scale(1.07)}}
+    .tag-row{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .tag{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#edf2ff;font-size:13px}
+    .section{margin-top:18px;padding:18px 16px;border-radius:24px;background:var(--card);border:1px solid rgba(153,181,255,.16);backdrop-filter:blur(12px)}
+    .section-title{font-size:14px;color:#a9c6ff;text-align:center;margin-bottom:12px;letter-spacing:1px}
+    .counter{text-align:center;font-size:clamp(20px,4.8vw,34px);font-weight:800;line-height:1.75;color:#fff3f8}
+    .mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+    .mini-item{padding:14px 10px;background:rgba(255,255,255,.06);border-radius:18px;border:1px solid rgba(255,255,255,.1);text-align:center}
+    .mini-item .n{display:block;font-size:22px;font-weight:800;color:#ffe3ef;margin-bottom:6px}
+    .mini-item .t{font-size:12px;color:#c9d4ff}
+    .btns{margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    button{border:none;border-radius:18px;padding:14px 12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:transform .18s ease,opacity .18s ease,box-shadow .18s ease,filter .18s ease;box-shadow:0 10px 22px rgba(0,0,0,.2);-webkit-tap-highlight-color:transparent}
+    button:hover{opacity:.98;filter:brightness(1.04);box-shadow:0 14px 28px rgba(0,0,0,.24)}
+    button:active{transform:scale(.97)}
+    .b1{background:linear-gradient(135deg,#ff6d9c,#ff8db6)}
+    .b2{background:linear-gradient(135deg,#6e8dff,#91a8ff)}
+    .b3{background:linear-gradient(135deg,#2fc89f,#5edcbc)}
+    .b4{background:linear-gradient(135deg,#ff9d57,#ffb670)}
+    .b5{background:linear-gradient(135deg,#ad78ff,#c091ff)}
+    .b6{background:linear-gradient(135deg,#4db9ff,#7bcfff)}
+    .quote-box{margin-top:18px;padding:18px 16px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,215,235,.16);text-align:center;color:#ffe0eb;line-height:1.85;font-size:17px;font-weight:700}
+    .typewriter{white-space:pre-wrap;font-size:17px;line-height:2;color:#ffe8f2;min-height:260px}
+    .grid-two{margin-top:18px;display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+    .panel-title{color:#ffd8e8;font-size:18px;font-weight:800;margin-bottom:12px}
+    .progress-item{margin-bottom:14px}
+    .progress-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#dbe6ff;font-size:14px}
+    .bar{width:100%;height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+    .bar>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff83b2,#9db8ff);width:0;animation:fillBar 1.6s ease forwards}
+    @keyframes fillBar{to{width:var(--w)}}
+    .timeline,.future-list{display:grid;gap:12px}
+    .timeline-item,.future-item{padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;color:#eef2ff;line-height:1.8;font-size:14px}
+    .timeline-item .time{color:#ffbfdb;font-size:13px;margin-bottom:6px;font-weight:700}
+    .mailbox-card{margin-top:22px;padding:24px 18px;border-radius:26px;background:rgba(10,16,40,.5);border:1px solid rgba(255,255,255,.12);box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+    .mailbox-title{text-align:center;font-size:24px;font-weight:900;color:#ffe1ee;margin-bottom:8px}
+    .mailbox-sub{text-align:center;color:#cbd8ff;font-size:14px;line-height:1.9;margin-bottom:18px}
+    .choice-group{margin-top:18px}
+    .choice-title{font-size:14px;color:#dbe6ff;margin-bottom:10px;text-align:center}
+    .choice-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .choice{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#edf2ff;border-radius:999px;padding:10px 14px;font-size:14px;cursor:pointer;transition:.18s}
+    .choice.active{background:linear-gradient(135deg,rgba(255,109,156,.9),rgba(145,168,255,.85));border-color:rgba(255,255,255,.28);box-shadow:0 10px 22px rgba(0,0,0,.18)}
+    .mailbox-field,.mailbox-area{width:100%;border:1px solid rgba(255,255,255,.14);outline:none;border-radius:16px;background:rgba(255,255,255,.08);color:#fff;padding:14px;font-size:15px;transition:border-color .2s ease,box-shadow .2s ease}
+    .mailbox-field::placeholder,.mailbox-area::placeholder{color:#b9c8ef}
+    .mailbox-field:focus,.mailbox-area:focus{border-color:rgba(255,162,196,.8);box-shadow:0 0 0 4px rgba(255,131,178,.14)}
+    .mailbox-area{min-height:140px;resize:vertical;margin-top:14px}
+    .mailbox-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+    .soft-badge{display:inline-block;margin-top:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:12px;color:#e8efff}
+    .mailbox-note,.mailbox-result{margin-top:14px;text-align:center;color:#d9e4ff;font-size:13px;line-height:1.8}
+    .mailbox-result{min-height:28px;color:#ffe6ef;font-size:14px}
+    .map-card{margin-top:22px;padding:20px 16px;border-radius:26px;background:rgba(10,16,40,.5);border:1px solid rgba(255,255,255,.12);box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+    .map-title{text-align:center;color:#ffe1ee;font-size:23px;font-weight:900;margin-bottom:8px}
+    .map-sub{text-align:center;color:#cbd8ff;font-size:14px;line-height:1.9;margin-bottom:16px}
+    #loveMap{height:360px;width:100%;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 12px 30px rgba(0,0,0,.2)}
+    .distance-box{margin-top:14px;text-align:center;color:#ffe6ef;font-weight:800;font-size:18px;line-height:1.8}
+    .promise-box{margin-top:18px;text-align:center}
+    .promise-text{margin-top:12px;color:#ffe6ef;line-height:1.8;font-size:16px;font-weight:700}
+    .footer{margin-top:18px;text-align:center;color:#bfd0f7;line-height:1.9;font-size:13px}
+    .popup{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.58)}
+    .popup.show{display:flex}
+    .popup-card{width:min(94vw,620px);max-height:86vh;overflow-y:auto;border-radius:24px;background:#fff8fc;color:#5b3b49;box-shadow:0 18px 50px rgba(0,0,0,.28);padding:22px 18px}
+    .popup-title{text-align:center;font-size:24px;font-weight:800;color:#ff5d93;margin-bottom:12px}
+    .popup-content{white-space:pre-wrap;line-height:1.95;font-size:15px}
+    .close-btn{width:100%;margin-top:16px;background:linear-gradient(135deg,#ff6d9c,#ff8fb7)}
+    .floating-tip{position:fixed;right:16px;bottom:16px;z-index:10;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px);border-radius:18px;padding:12px 14px;font-size:13px;line-height:1.7;box-shadow:0 10px 22px rgba(0,0,0,.18)}
+    .love-burst-overlay{position:fixed;inset:0;z-index:120;pointer-events:none;display:none;overflow:hidden}
+    .love-burst-overlay.show{display:block}
+    .love-burst-bg{position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,120,170,.18),rgba(10,13,43,.2) 45%,rgba(10,13,43,.45));animation:burstFadeIn .35s ease}
+    .love-burst-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,900px);text-align:center;font-size:clamp(26px,5vw,56px);line-height:1.5;font-weight:900;color:#fff3f8;text-shadow:0 0 12px rgba(255,120,170,.45),0 0 28px rgba(255,120,170,.35),0 0 48px rgba(255,255,255,.18);letter-spacing:1px;padding:20px 24px;border-radius:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.28);animation:burstTextPop .5s ease}
+    .burst-heart{position:absolute;bottom:-40px;font-size:18px;opacity:0;filter:drop-shadow(0 0 10px rgba(255,117,163,.5));animation:burstHeartFly linear forwards;user-select:none;pointer-events:none}
+    @keyframes burstFadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes burstTextPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.82)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+    @keyframes burstHeartFly{0%{opacity:0;transform:translateY(0) translateX(0) scale(.8) rotate(0deg)}10%{opacity:1}100%{opacity:0;transform:translateY(-120vh) translateX(var(--driftX)) scale(1.4) rotate(var(--rotateDeg))}}
+    @media(max-width:860px){.btns{grid-template-columns:repeat(2,1fr)}.grid-two{grid-template-columns:1fr}.mini-stats{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.wrap{padding:14px 10px 90px}.hero{padding:24px 14px 20px}.sub{font-size:14px;line-height:1.85}.btns{grid-template-columns:1fr}.counter{font-size:18px}.quote-box,.typewriter{font-size:15px}.typewriter{min-height:220px}.mini-item .n{font-size:20px}.floating-tip{right:10px;left:10px;bottom:10px;text-align:center}.mailbox-title{font-size:21px}.mailbox-card,.map-card{padding:18px 14px}.mailbox-actions{flex-direction:column}#loveMap{height:300px}}
   </style>
 </head>
+
 <body>
   <div class="bg-layer" id="bgLayer"></div>
   <div class="stars" id="stars"></div>
@@ -740,196 +120,157 @@
 
   <div class="wrap">
     <section class="glass-card hero">
-      <div class="title">WH ❤ YN</div>
+      <div class="hero-kicker">写给杨念的一页小宇宙 · from WH</div>
+      <div class="title">王鸿 ❤ 杨念</div>
+      <div class="name-subtitle">WH & YN</div>
       <div class="sub">
         我们在一起的起点：2026.02.04<br>
-        从那天开始，WH 的世界就不再只是代码、终端、算法和夜里的屏幕光。<br>
-        因为 YN 出现以后，平凡的日子自动升级成了值得期待的版本。
-        我的生活也不再是一眼望到头的，开始有了更多期待。
+        从那天开始，王鸿的生活里多了一个很特别的人：杨念。<br>
+        很多普通的日子，因为有你的消息、你的笑容、还有你的陪伴，慢慢变得有盼头。
       </div>
-
       <div class="big-heart">❤</div>
-
       <div class="tag-row">
-        <div class="tag">Love YN System Pro 已启动</div>
-        <div class="tag">对象：YN</div>
-        <div class="tag">开发者：WH</div>
-        <div class="tag">状态：永远在一起</div>
+        <div class="tag">写给杨念</div>
+        <div class="tag">王鸿 ❤ 杨念</div>
+        <div class="tag">2026.02.04</div>
+        <div class="tag">慢慢来，也一直在</div>
       </div>
     </section>
 
     <section class="section">
-      <div class="section-title">恋爱运行时间</div>
+      <div class="section-title">我们已经一起走过</div>
       <div class="counter" id="counter">加载中...</div>
-
       <div class="mini-stats">
-        <div class="mini-item">
-          <span class="n" id="daysNum">0</span>
-          <span class="t">一起走过的天数</span>
-        </div>
-        <div class="mini-item">
-          <span class="n" id="hoursNum">0</span>
-          <span class="t">累计小时</span>
-        </div>
-        <div class="mini-item">
-          <span class="n" id="minutesNum">0</span>
-          <span class="t">累计分钟</span>
-        </div>
-        <div class="mini-item">
-          <span class="n" id="secondsNum">0</span>
-          <span class="t">累计秒数</span>
-        </div>
+        <div class="mini-item"><span class="n" id="daysNum">0</span><span class="t">一起走过的天数</span></div>
+        <div class="mini-item"><span class="n" id="hoursNum">0</span><span class="t">累计小时</span></div>
+        <div class="mini-item"><span class="n" id="minutesNum">0</span><span class="t">累计分钟</span></div>
+        <div class="mini-item"><span class="n" id="secondsNum">0</span><span class="t">累计秒数</span></div>
       </div>
     </section>
 
     <div class="btns">
-      <button class="b1" onclick="showLetter()">打开长情书</button>
-      <button class="b2" onclick="showStatus()">查看恋爱状态</button>
+      <button class="b1" onclick="showLetter()">打开写给你的信</button>
+      <button class="b2" onclick="showStatus()">看看今天的我</button>
       <button class="b3" onclick="showToday()">领取今日偏爱</button>
-      <button class="b4" onclick="showFuture()">打开未来清单</button>
-      <button class="b5" onclick="showTimeline()">查看恋爱时间线</button>
-      <button class="b6" onclick="changeQuote()">换一句心动文案</button>
+      <button class="b4" onclick="showFuture()">看看以后想做的事</button>
+      <button class="b5" onclick="showTimeline()">看看我们的时间线</button>
+      <button class="b6" onclick="changeQuote()">换一句想你</button>
     </div>
 
-    <section class="quote-box" id="quoteBox">
-      YN，不是“刚好遇见你”，而是“遇见你之后，很多平常的日子都开始闪闪发光”。
-    </section>
+    <section class="quote-box" id="quoteBox">杨念，我不是只想把喜欢说得很好听，我更想把它慢慢放进每一天里。</section>
 
     <section class="section">
-      <div class="section-title">写给 YN 的主程序</div>
+      <div class="section-title">写给杨念的话</div>
       <div class="typewriter" id="typewriter"></div>
     </section>
 
     <div class="grid-two">
       <section class="section">
-        <div class="panel-title">恋爱系统面板</div>
-
-        <div class="progress-item">
-          <div class="progress-head">
-            <span>偏爱加载度</span>
-            <span>100%</span>
-          </div>
-          <div class="bar"><span style="--w:100%"></span></div>
-        </div>
-
-        <div class="progress-item">
-          <div class="progress-head">
-            <span>想念频率</span>
-            <span>100%</span>
-          </div>
-          <div class="bar"><span style="--w:99%"></span></div>
-        </div>
-
-        <div class="progress-item">
-          <div class="progress-head">
-            <span>温柔储备</span>
-            <span>100%</span>
-          </div>
-          <div class="bar"><span style="--w:100%"></span></div>
-        </div>
-
-        <div class="progress-item">
-          <div class="progress-head">
-            <span>未来认真度</span>
-            <span>100%</span>
-          </div>
-          <div class="bar"><span style="--w:100%"></span></div>
-        </div>
-
-        <div class="future-list" style="margin-top: 16px;">
-          <div class="future-item">系统提示：WH 对 YN 的喜欢不是一次性任务，而是默认开机自启动、长期维护、持续更新的主工程。</div>
-          <div class="future-item">运行说明：坏情绪可以临时出现，但它们不会成为主线程；偏爱、耐心、关心和陪伴才是常驻服务。</div>
-          <div class="future-item">最终目标：把每一天都慢慢写成“值得回头看”的版本，把以后都认真交给“我们”。</div>
+        <div class="panel-title">一些关于我的小实话</div>
+        <div class="progress-item"><div class="progress-head"><span>偏爱程度</span><span>100%</span></div><div class="bar"><span style="--w:100%"></span></div></div>
+        <div class="progress-item"><div class="progress-head"><span>想你频率</span><span>100%</span></div><div class="bar"><span style="--w:99%"></span></div></div>
+        <div class="progress-item"><div class="progress-head"><span>温柔储备</span><span>100%</span></div><div class="bar"><span style="--w:100%"></span></div></div>
+        <div class="progress-item"><div class="progress-head"><span>认真程度</span><span>100%</span></div><div class="bar"><span style="--w:100%"></span></div></div>
+        <div class="future-list" style="margin-top:16px;">
+          <div class="future-item">王鸿对杨念的喜欢，不是一时兴起，也不是说完就算了，是想慢慢放进日常里的认真。</div>
+          <div class="future-item">你开心的时候，我想陪你一起开心；你不开心的时候，我也想先站到你这边。</div>
+          <div class="future-item">我想把很多普通日子，和你一起过成以后回头看也会觉得很珍贵的片段。</div>
         </div>
       </section>
 
       <section class="section">
-        <div class="panel-title">恋爱时间线</div>
+        <div class="panel-title">我们的时间线</div>
         <div class="timeline">
-          <div class="timeline-item">
-            <div class="time">2026.02.04</div>
-            <div class="desc">系统正式上线。WH ❤ YN 从这一天开始，不再只是两个名字，而是被认真写进同一个未来里的两个人。</div>
-          </div>
-          <div class="timeline-item">
-            <div class="time">第一阶段</div>
-            <div class="desc">心动开始稳定输出。想念、期待、偏爱、分享欲全部接入主程序，运行流畅且无意外终止计划。</div>
-          </div>
-          <div class="timeline-item">
-            <div class="time">现在</div>
-            <div class="desc">程序持续运行中。WH 正在把“喜欢你”从一句话，慢慢写成一段能陪很久很久的现实。</div>
-          </div>
+          <div class="timeline-item"><div class="time">2026.02.04</div><div class="desc">这一天开始，WH 和 YN 不再只是两个缩写，而是王鸿和杨念一起写下的故事。</div></div>
+          <div class="timeline-item"><div class="time">慢慢靠近</div><div class="desc">从开始聊天、开始期待消息，到越来越想分享生活，小小的心动一点点变得明确。</div></div>
+          <div class="timeline-item"><div class="time">现在</div><div class="desc">王鸿还在很认真地喜欢杨念，也想把“喜欢你”慢慢变成看得见的陪伴。</div></div>
         </div>
       </section>
     </div>
 
     <section class="section">
-      <div class="panel-title">未来任务书</div>
+      <div class="panel-title">以后想和你做的事</div>
       <div class="future-list">
-        <div class="future-item">想和你一起去很多地方，吃好多好多的好吃的。</div>
-        <div class="future-item">想和你有很多很多合照，留在我们爱的痕迹。</div>
-        <div class="future-item">想在你不开心的时候抱抱你、一直陪着你、亲亲你。</div>
-        <div class="future-item">想把“喜欢你”从一句话，慢慢写成很多看得见的行动。</div>
-        <div class="future-item">想认真参与你的明天，让“以后”不再只是一个模糊的词。</div>
-        <div class="future-item">想把偏爱写成习惯，把温柔写成日常，把陪伴写成长期任务。</div>
-        <div class="future-item">想让你在未来某一天回头看时，也会觉得：嗯，被 WH 喜欢着，好像真的挺幸福。</div>
-      </div>
-
-      <div class="secret-box">
-        <input id="secretInput" type="text" placeholder="输入专属暗号试试，比如：YN520" />
-        <button class="b1" onclick="unlockSecret()">解锁隐藏彩蛋</button>
+        <div class="future-item">想和你一起去很多地方，吃好多好多好吃的。</div>
+        <div class="future-item">想和你拍很多合照，把我们爱的痕迹认真留下来。</div>
+        <div class="future-item">想在你不开心的时候抱抱你、陪着你、亲亲你。</div>
+        <div class="future-item">想把“喜欢你”从一句话，慢慢变成很多看得见的小事。</div>
+        <div class="future-item">想认真参与你的明天，让“以后”不再只是一个很远的词。</div>
+        <div class="future-item">想把偏爱变成习惯，把温柔变成日常，把陪伴变成长久。</div>
+        <div class="future-item">想让你以后回头看时，会觉得：被王鸿喜欢着，真的很幸福。</div>
       </div>
     </section>
 
+    <section class="map-card">
+      <div class="map-title">🗺️ 我们之间的距离</div>
+      <div class="map-sub">
+        一个在吉隆坡，一个在贵州。地图上看起来有点远，<br>
+        但我知道，我想见你的心会比距离更坚定。
+      </div>
+      <div id="loveMap"></div>
+      <div class="distance-box" id="distanceText">正在计算我们之间的距离...</div>
+    </section>
+
     <section class="mailbox-card">
-      <div class="mailbox-title">💌 悄悄话收集信箱</div>
+      <div class="mailbox-title">💌 给王鸿的小信箱</div>
       <div class="mailbox-sub">
-        留言会直接发送到 WH 的邮箱 💖
+        不用写名字，我知道这是你。<br>
+        选一下今天想说什么，再写给我就好。密码提示：我们在一起的那一天，六位数字。
       </div>
 
       <div style="text-align:center;">
-        <span class="soft-badge">GitHub Pages + EmailJS 已开启</span>
+        <span class="soft-badge">输对密码后，我就能收到你写的话</span>
       </div>
 
-      <form id="love-mail-form">
-        <div class="mailbox-grid" style="margin-top:18px;">
-          <input
-            name="from_name"
-            class="mailbox-field"
-            type="text"
-            placeholder="你的名字 / 昵称"
-            required
-          />
-
-          <input
-            name="reply_to"
-            class="mailbox-field"
-            type="email"
-            placeholder="你的邮箱（可选）"
-          />
-
-          <textarea
-            name="message"
-            class="mailbox-area"
-            placeholder="写下你的悄悄话吧……"
-            required
-          ></textarea>
+      <div class="choice-group">
+        <div class="choice-title">今天想留下什么？</div>
+        <div class="choice-row" id="typeChoices">
+          <button class="choice active" type="button" data-value="想你了">想你了</button>
+          <button class="choice" type="button" data-value="今日心情">今日心情</button>
+          <button class="choice" type="button" data-value="想被哄">想被哄</button>
+          <button class="choice" type="button" data-value="小建议">小建议</button>
+          <button class="choice" type="button" data-value="许个愿">许个愿</button>
+          <button class="choice" type="button" data-value="悄悄话">悄悄话</button>
         </div>
+      </div>
 
-        <div class="mailbox-actions">
-          <button type="submit" class="b1">发送悄悄话 💖</button>
+      <div class="choice-group">
+        <div class="choice-title">现在的心情是？</div>
+        <div class="choice-row" id="moodChoices">
+          <button class="choice active" type="button" data-value="开心">开心</button>
+          <button class="choice" type="button" data-value="想你">想你</button>
+          <button class="choice" type="button" data-value="有点累">有点累</button>
+          <button class="choice" type="button" data-value="委屈">委屈</button>
+          <button class="choice" type="button" data-value="撒娇">撒娇</button>
+          <button class="choice" type="button" data-value="平静">平静</button>
         </div>
-      </form>
+      </div>
+
+      <input id="mailboxPassword" class="mailbox-field" type="password" placeholder="密码提示：我们在一起的时间" style="margin-top:16px;">
+      <textarea id="mailboxMessage" class="mailbox-area" placeholder="想跟王鸿说什么，就写在这里吧……"></textarea>
+
+      <div class="mailbox-actions">
+        <button class="b1" onclick="sendSecretMessage()">发给王鸿 💖</button>
+        <button class="b5" onclick="openOwnerInbox()">王鸿查看留言 🔐</button>
+      </div>
 
       <div class="mailbox-result" id="mailboxResult"></div>
 
       <div class="mailbox-note">
-        提示：留言会通过 EmailJS 发到邮箱，不再保存在本地浏览器。
+        小提示：密码是我们在一起那天的日期。<br>
+        把年月日连起来，就是六位数字。
       </div>
     </section>
 
+    <section class="section promise-box">
+      <div class="panel-title">抽一个以后的小约定</div>
+      <button class="b3" onclick="drawPromise()">抽一下</button>
+      <div class="promise-text" id="promiseText">比如：以后一起去看一场很漂亮的日落。</div>
+    </section>
+
     <div class="footer">
-      WH 为 YN 写的专属网页 · Love System Pro<br>
-      提示：点按钮会有不同内容，点页面大部分位置都会掉小爱心，连续点 3 次会触发隐藏动画 ❤
+      王鸿写给杨念的一页小宇宙 · WH & YN<br>
+      点按钮会看到不同内容，轻触页面会掉小爱心，连续点 3 次还有隐藏动画 ❤
     </div>
   </div>
 
@@ -941,21 +282,17 @@
     </div>
   </div>
 
-  <div class="floating-tip">
-    小提示：轻触页面大部分区域，会触发爱心特效 ❤
-  </div>
+  <div class="floating-tip">轻触空白处，会掉下小爱心 ❤</div>
 
   <div class="love-burst-overlay" id="loveBurstOverlay">
     <div class="love-burst-bg"></div>
-    <div class="love-burst-text">王鸿会永远爱着杨念</div>
+    <div class="love-burst-text">王鸿会一直认真喜欢杨念</div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>
-    emailjs.init({
-      publicKey: "UQkavrAgxXWtrvV2U"
-    });
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
+  <script>
+    const LOVE_PASSWORD = "260204";
     const loveDate = new Date("2026-02-04T00:00:00");
 
     const counterEl = document.getElementById("counter");
@@ -973,146 +310,149 @@
     const heartsBox = document.getElementById("hearts");
     const meteorsBox = document.getElementById("meteors");
     const clickHearts = document.getElementById("clickHearts");
-    const secretInput = document.getElementById("secretInput");
     const mailboxResult = document.getElementById("mailboxResult");
-    const loveMailForm = document.getElementById("love-mail-form");
     const loveBurstOverlay = document.getElementById("loveBurstOverlay");
+    const promiseText = document.getElementById("promiseText");
 
-    const mainText = `YN，
+    let selectedType = "想你了";
+    let selectedMood = "开心";
 
-如果把人生比作一段很长的程序，
-那你出现以后，我的世界像突然拥有了更明亮的界面、更温柔的交互、和更值得期待的未来。
+    const mainText = `杨念，
 
-从 2026.02.04 开始，
-WH 的生活就不再只是普通循环里的日升月落，
-因为你让那些原本平常的时刻，
-开始有了等待、心动、分享欲和认真想靠近的意义。
+我想了很久，要怎么把这个页面写得更像我真的在和你说话。
 
-我以前觉得浪漫可能是电影里的桥段，
-后来才发现，
-真正的浪漫也可以很具体：
-是看到一个好看的晚霞会想发给你，
-是某个瞬间突然想到你就忍不住笑一下，
-是很多还没发生的明天里，我都下意识把你放进了计划。
+所以我就直接一点。
 
-如果把喜欢写成变量，
-那我对你的值只会越来越大；
-如果把陪伴写成算法，
-那我希望我们的结果永远都是：
-稳定、长久、并且带着温柔的持续输出。
+从 2026.02.04 开始，王鸿的生活里多了一个很特别的人。
+是会让我想分享日常的人，是看到好看的东西会第一时间想到的人，也是让我开始认真期待“以后”的人。
 
-我不只是想对你说“我喜欢你”，
-我更想用行动慢慢证明：
-在你开心的时候，我想陪你一起更开心；
-在你低落的时候，我想站在你身边，接住你的小情绪；
-在以后很多很多天里，我也依然想认真地偏爱你。
+有时候我也说不清楚，喜欢到底是从哪一刻开始变得特别明显的。
+可能是等你消息的时候，可能是想到你就会笑的时候，也可能是我发现，很多原本普通的小事，只要和你有关，就会突然变得很值得记住。
+
+我不想只把喜欢停在嘴上。
+我想慢慢把它放进行动里：
+你开心的时候，我想陪你一起笑；
+你不开心的时候，我想先站到你这边；
+你累的时候，我想让你知道，你不用一个人撑着。
+
+这个网页不是为了写得多夸张。
+它只是王鸿想用自己最熟悉的方式，认真告诉杨念：
+
+你很重要。
+我很喜欢你。
+而且这份喜欢，不是临时的。
 
 WH ❤ YN
-这个页面不是一串普通代码，
-它更像是我想告诉你的另一种方式：
-你很重要，
-你值得被认真喜欢，
-也值得被我一直温柔对待。`;
+这几个字放在一起的时候，
+在我这里就是：王鸿和杨念，慢慢来，也一直在。`;
 
     const quotes = [
-      "YN，不是“刚好遇见你”，而是“遇见你之后，很多平常的日子都开始闪闪发光”。",
-      "别人写代码是为了跑程序，我写这个页面，是想让 YN 知道：她真的很重要。",
-      "如果心动有名字，那大概就叫：每次想到你时，嘴角都会自己上扬。",
-      "WH 的长期任务：认真喜欢 YN，并尽量把她的每一天都照顾得更温柔一点。",
-      "你不是某一段插曲，你是我想长期维护、长期更新、长期珍惜的主项目。",
-      "如果快乐有快捷键，那一定和你有关；如果未来有默认选项，那一定想把你选上。",
-      "我喜欢你，不只是因为你很好，也因为你让我的生活变得更值得期待。",
-      "和你有关的事情，总会让我比平时多几分认真，多几分偏爱，多几分想靠近。"
+      "杨念，我不是只想把喜欢说得很好听，我更想把它慢慢放进每一天里。",
+      "王鸿写这个页面，不是为了炫技，是想让你知道：你真的很重要。",
+      "有些心动不是突然很大声，而是在很多小瞬间里，一点点变得确定。",
+      "我希望你在我这里，可以不用逞强，也不用总是懂事。",
+      "WH 和 YN 不是一串缩写，是王鸿想认真守着杨念的证据。",
+      "想到以后如果有你在，很多普通日子好像都值得期待了。",
+      "喜欢你这件事，我想说，也想做，更想慢慢证明。",
+      "和你有关的事情，我总会比平时多一点认真，多一点耐心，多一点偏爱。"
     ];
 
-    const letterText = `给 YN 的长情书：
+    const letterText = `给杨念的一封信：
 
-亲爱的 YN：
+杨念：
 
-如果要我认真写下“喜欢你”这件事，
-那我大概会写很久很久。
+其实写这封信的时候，我没有想把它写得多华丽。
+我只是想认真一点，把平时可能没说完整的话，慢慢说给你听。
 
-因为你对我来说，
-从来都不是一句简单的“我喜欢你”就能概括的人。
+你对我来说，不是一个简单的“喜欢的人”而已。
+你是我会惦记的人，是我会想哄开心的人，是我会在很多计划里下意识想到的人。
 
-你像是突然出现在我生活里的光，
-不是那种很刺眼、很喧闹的光，
-而是会让人慢慢觉得安心、觉得柔软、觉得世界都跟着亮一点的那种光。
+从 2026.02.04 到现在，时间一直往前走。
+而我对你的喜欢，也不是停在某一个瞬间。
+它会在等你消息的时候出现，会在想到你今天过得好不好时出现，也会在我看见一些好玩的、好看的东西时，突然很想发给你的时候出现。
 
-从 2026.02.04 到现在，
-时间在一点点往前走，
-而我对你的在意、喜欢、偏爱和想认真陪着你的念头，也在一点点变得更清楚。
+我喜欢你，不只是因为你可爱、好看、特别。
+更因为你让我觉得，原来一个人真的可以让平淡的生活变得柔软一点，让未来这个词变得具体一点。
 
-我会想你今天过得好不好，
-会想你是不是开心，
-会想你遇到不顺心的时候有没有人哄你，
-也会想以后很多很多普通的日子里，
-我能不能一直站在你身边，陪你把平淡也过成值得纪念的样子。
+我想和你一起吃很多好吃的，一起去很多地方，一起拍很多照片。
+也想在你不开心的时候抱抱你，在你累的时候陪陪你，在你需要我的时候认真出现。
 
-我喜欢你，不只是因为你很好看、很可爱、很特别。
-更因为和你有关的时候，
-我会变得更认真、更温柔、更愿意去规划未来。
+我知道喜欢不是只靠几句好听的话。
+所以我想慢慢来，慢慢把它变成行动，变成陪伴，变成你能感受到的偏爱。
 
-我开始觉得，
-原来“未来”不是一个很空的词，
-因为一想到你，它就会变得具体起来：
-可能是一起散步、一起吃饭、一起拍照、一起看夜景；
-可能是你不开心的时候我陪着你，
-你开心的时候我比你还想多笑一点；
-可能是很多很普通很小的事情，
-但只要是和你一起，好像都值得被记住。
+谢谢你出现在我的生活里。
+谢谢你让王鸿的很多普通日子，都因为杨念变得有光。
 
-谢谢你来到我的生活里。
-谢谢你让“喜欢”这件事不再是一个抽象名词，
-而是变成了很多很多真实、细碎、温柔、并且会长久存在的瞬间。
-
-我希望你永远都能知道：
-你值得被坚定选择，
-值得被偏爱，
-值得被温柔以待，
-也值得有人认真地把你写进以后的很多很多天里。
-
-而我想做那个一直认真对你的人。
+你值得被认真喜欢，
+也值得被一直温柔对待。
 
 你的 WH`;
 
+    const promises = [
+      "以后一起去看一场很漂亮的日落。",
+      "以后一起去吃一顿不用看价格、只看想不想吃的饭。",
+      "以后一起拍很多很多合照，拍到手机相册全是我们。",
+      "以后你不开心的时候，我先抱抱你，再慢慢听你说。",
+      "以后一起去海边吹风，什么都不赶，就慢慢走。",
+      "以后一起过很多很多个情人节、生日和新年。",
+      "以后见面的时候，我要把这段时间欠你的抱抱都补回来。",
+      "以后一起去一个陌生城市，手牵手从早逛到晚。",
+      "以后你想吃什么，我就陪你去吃什么。",
+      "以后把普通日子，也过成只有我们才懂的小浪漫。"
+    ];
+
+    function setupChoices() {
+      document.querySelectorAll("#typeChoices .choice").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("#typeChoices .choice").forEach(item => item.classList.remove("active"));
+          button.classList.add("active");
+          selectedType = button.dataset.value;
+        });
+      });
+
+      document.querySelectorAll("#moodChoices .choice").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("#moodChoices .choice").forEach(item => item.classList.remove("active"));
+          button.classList.add("active");
+          selectedMood = button.dataset.value;
+        });
+      });
+    }
+
     function getDiff() {
-      const now = new Date();
-      const diff = now - loveDate;
-      return Math.max(0, diff);
+      return Math.max(0, new Date() - loveDate);
     }
 
     function updateCounter() {
       const diff = getDiff();
 
       if (new Date() - loveDate < 0) {
-        counterEl.innerHTML = "2026.02.04 还没到，但 WH 已经提前把 YN 放进未来了 ❤";
+        counterEl.innerHTML = "2026.02.04 还没到，但王鸿已经提前把杨念放进未来了 ❤";
         return;
       }
 
       const totalSeconds = Math.floor(diff / 1000);
-      const days = Math.floor(totalSeconds / (24 * 3600));
+      const days = Math.floor(totalSeconds / 86400);
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor(totalSeconds / 60);
-
-      const d = days;
-      const h = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const h = Math.floor((totalSeconds % 86400) / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
 
-      counterEl.innerHTML = `WH 和 YN 已经在一起：<br>${d} 天 ${h} 小时 ${m} 分 ${s} 秒`;
-      daysNum.textContent = d;
+      counterEl.innerHTML = `王鸿和杨念已经在一起：<br>${days} 天 ${h} 小时 ${m} 分 ${s} 秒`;
+      daysNum.textContent = days;
       hoursNum.textContent = hours;
       minutesNum.textContent = minutes;
       secondsNum.textContent = totalSeconds;
     }
 
     let typingIndex = 0;
+
     function runTypewriter() {
       if (typingIndex <= mainText.length) {
         typewriterEl.textContent = mainText.slice(0, typingIndex);
         typingIndex++;
-        setTimeout(runTypewriter, 26);
+        setTimeout(runTypewriter, 24);
       }
     }
 
@@ -1128,164 +468,244 @@ WH ❤ YN
 
     function showLetter() {
       showerOfHearts(10);
-      showPopup("给 YN 的长情书", letterText);
+      showPopup("给杨念的一封信", letterText);
     }
 
     function showStatus() {
       showerOfHearts(8);
-      const sweetness = 99 + Math.floor(Math.random() * 2);
       const miss = 98 + Math.floor(Math.random() * 3);
-      const guard = 100;
-      const msg = `【恋爱系统状态报告】
 
-对象：YN
-系统所有者：WH
-主程序名称：WH ❤ YN Love System Pro
-当前状态：稳定运行中
-甜度指数：${sweetness}/100
-想念频率：${miss}/100
-偏爱权限：永久开启
-温柔守护：${guard}/100
-未来认真度：100/100
-异常处理：YN 的坏情绪优先接住
-自动任务：看到 YN 就想哄她开心
+      const msg = `今天的王鸿：
 
-结论：
-该系统建议永久运行，不建议停止；
-建议开发者 WH 长期维护、持续更新、认真陪伴。`;
-      showPopup("恋爱状态", msg);
+想杨念：${miss}/100
+偏爱杨念：100/100
+想见你：100/100
+认真程度：100/100
+
+今天的结论：
+如果杨念今天开心，王鸿想陪你一起开心。
+如果杨念今天有一点累，也可以不用逞强。
+
+你在我这里，一直是可以被偏爱、被照顾、被认真放在心上的人。`;
+
+      showPopup("今天的我", msg);
     }
 
     function showToday() {
       showerOfHearts(12);
+
       const list = [
-        "今日偏爱：YN 今天可以被夸、被宠、被偏爱，并且这一切都合理合法。",
-        "今日偏爱：如果今天有一点点累，那就把自己交给温柔，WH 会一直站你这边。",
-        "今日偏爱：今天允许你当小朋友，允许你撒娇，允许你被认真照顾。",
-        "今日偏爱：坏情绪只是临时变量，不会覆盖你本身的可爱和重要。",
-        "今日偏爱：今天的 YN 也值得一整天的好心情和很多很多温柔。"
+        "今天的偏爱：杨念可以被夸、被哄、被认真放在心上。",
+        "今天的偏爱：如果今天有一点点累，就先慢慢来，王鸿会站在你这边。",
+        "今天的偏爱：你可以当小朋友，可以撒娇，也可以被好好照顾。",
+        "今天的偏爱：坏情绪只是短暂停留，不会影响你在我心里的可爱和重要。",
+        "今天的偏爱：今天的杨念也值得好心情、好天气和很多很多温柔。"
       ];
-      const msg = list[Math.floor(Math.random() * list.length)];
-      showPopup("今日偏爱", msg);
+
+      showPopup("今日偏爱", list[Math.floor(Math.random() * list.length)]);
     }
 
     function showFuture() {
       showerOfHearts(10);
-      const text = `【未来清单】
 
-1. 想和你一起去很多地方，吃好多好多的好吃的。
-2. 想和你有很多很多合照，留在我们爱的痕迹。
-3. 想在你不开心的时候抱抱你、一直陪着你、亲亲你。
-4. 想把“喜欢你”从一句话，慢慢写成很多看得见的行动。
-5. 想认真参与你的明天，让“以后”不再只是一个模糊的词。
-6. 想把偏爱写成习惯，把温柔写成日常，把陪伴写成长期任务。
-7. 想让你在未来某一天回头看时，也会觉得：嗯，被 WH 喜欢着，好像真的挺幸福。`;
-      showPopup("未来清单", text);
+      const text = `以后想和你做的事：
+
+1. 想和你一起去很多地方，吃好多好多好吃的。
+2. 想和你拍很多合照，把我们爱的痕迹认真留下来。
+3. 想在你不开心的时候抱抱你、陪着你、亲亲你。
+4. 想把“喜欢你”从一句话，慢慢变成很多看得见的小事。
+5. 想认真参与你的明天，让“以后”不再只是一个很远的词。
+6. 想把偏爱变成习惯，把温柔变成日常，把陪伴变成长久。
+7. 想让你以后回头看时，会觉得：被王鸿喜欢着，真的很幸福。`;
+
+      showPopup("以后想和你做的事", text);
     }
 
     function showTimeline() {
       showerOfHearts(8);
-      const text = `【恋爱时间线】
+
+      const text = `我们的时间线：
 
 2026.02.04
-系统正式启动，WH ❤ YN 被写入同一个故事。
+从这一天开始，WH 和 YN 被写进同一个故事。
 
-初期阶段
-从 2026.2.4 那句试探开始，我们的故事也开始了。
-简单的一箱零食也是我对宝宝的第一份礼物。
-每天有说不完的话，看到宝宝的消息会好开心，我平淡的日子开始被期待填满。
+刚开始
+从那句试探开始，我们的故事也开始了。
+一箱零食，是王鸿给杨念的第一份小小心意。
+每天有说不完的话，看到你的消息会很开心，平淡的日子开始有了期待。
 
-中期阶段
-2026.2.14 我们一起度过了第一个情人节，未来我们还会一起度过无数个情人节。
-2026.2.17 我们一起度过了第一个春节，虽然这次春节我们没有在彼此身边，但以后每个春节我们都会在一起度过。
+第一个节日
+2026.02.14，我们一起度过了第一个情人节。
+以后还想和你一起过很多很多个情人节。
 
-当前阶段
-程序持续稳定运行中，WH 对 YN 的认真度保持高位，未来模块已开启，长期陪伴意图明确。`;
-      showPopup("恋爱时间线", text);
+第一个春节
+2026.02.17，我们一起度过了第一个春节。
+这一次也许没有一直在彼此身边，但我希望以后的每个春节，我们都能更靠近一点。
+
+现在
+王鸿还在认真喜欢杨念。
+未来还很长，但我想慢慢陪你走。`;
+
+      showPopup("我们的时间线", text);
     }
 
     function changeQuote() {
       showerOfHearts(6);
       const current = quoteBox.textContent.trim();
       const nextList = quotes.filter(item => item !== current);
-      const next = nextList[Math.floor(Math.random() * nextList.length)];
-      quoteBox.textContent = next;
+      quoteBox.textContent = nextList[Math.floor(Math.random() * nextList.length)];
     }
 
-    function unlockSecret() {
-      const value = secretInput.value.trim().toLowerCase();
-      const okList = [
-        "yn520",
-        "whyn",
-        "wh❤yn",
-        "whyn520",
-        "520",
-        "iloveyn",
-        "小🐑520",
-        "wh小🐑",
-        "wh❤小🐑",
-        "wh小🐑520",
-        "ilove小🐑"
-      ].map(v => v.toLowerCase());
+    function drawPromise() {
+      showerOfHearts(8);
+      const next = promises[Math.floor(Math.random() * promises.length)];
+      promiseText.textContent = next;
+    }
 
-      if (okList.includes(value)) {
-        showerOfHearts(16);
-        showPopup(
-          "隐藏彩蛋已解锁",
-          `给 小🐑 的隐藏权限：
+    async function sendSecretMessage() {
+      const password = document.getElementById("mailboxPassword").value.trim();
+      const message = document.getElementById("mailboxMessage").value.trim();
 
-恭喜你解锁了 WH 的隐藏页面内容。
+      if (!password || !message) {
+        mailboxResult.textContent = "密码和想说的话都要写一下哦。";
+        return;
+      }
 
-其实不管输不输入暗号，
-小🐑 在我这里本来就是默认拥有最高权限的人。
+      if (password !== LOVE_PASSWORD) {
+        mailboxResult.textContent = "密码不对哦。提示：我们在一起的那一天，六位数字。";
+        return;
+      }
 
-权限等级：
-查看我的偏爱：已开放
-查看我的温柔：已开放
-查看我的认真：已开放
-查看我的未来计划：已默认包含 小🐑
-终身特别关注：永久生效
+      mailboxResult.textContent = "正在把这句话送给王鸿……";
 
-彩蛋结论：
-小🐑 在 WH 的系统里，从来都不是普通访客，
-而是唯一指定、长期有效、不可替代的特别对象。`
-        );
-      } else {
-        showPopup(
-          "暗号不对哦",
-          "再试试吧～ 可以输入：YN520 或 小🐑520\n\n其实就算暗号不对，WH 对 小🐑 的偏爱也不会失效。"
-        );
+      try {
+        const apiRes = await fetch("/api/secret-message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            password,
+            message,
+            category: selectedType,
+            mood: selectedMood
+          })
+        });
+
+        const apiData = await apiRes.json();
+
+        if (!apiRes.ok) {
+          mailboxResult.textContent = apiData.error || "好像没有发送成功，等一下再试试。";
+          return;
+        }
+
+        if (apiData.emailSent) {
+          mailboxResult.textContent = "发送成功啦，王鸿会看到的 💖";
+        } else {
+          mailboxResult.textContent = "留言保存成功啦，王鸿可以在小信箱里看到。";
+        }
+
+        document.getElementById("mailboxMessage").value = "";
+        document.getElementById("mailboxPassword").value = "";
+        showerOfHearts(14);
+      } catch (error) {
+        mailboxResult.textContent = "现在好像暂时发不出去，等一下再试试。";
       }
     }
 
-    loveMailForm.addEventListener("submit", function (e) {
-      e.preventDefault();
+    async function openOwnerInbox() {
+      const ownerPassword = prompt("请输入王鸿查看留言的密码：");
 
-      mailboxResult.textContent = "正在发送中，请稍等…";
+      if (!ownerPassword) return;
 
-      emailjs.sendForm(
-        "service_whyn1314",
-        "template_djmbxtd",
-        "#love-mail-form"
-      ).then(
-        function () {
-          mailboxResult.textContent = "发送成功 💖 WH 已经收到啦！";
-          loveMailForm.reset();
-          showerOfHearts(14);
-        },
-        function (error) {
-          console.error("EmailJS error:", error);
-          mailboxResult.textContent = "发送失败了，稍后再试试。";
+      try {
+        const res = await fetch(`/api/admin-messages?password=${encodeURIComponent(ownerPassword.trim())}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          showPopup("暂时看不到留言", data.error || "密码不对，暂时看不到留言。");
+          return;
         }
-      );
-    });
+
+        if (!Array.isArray(data) || data.length === 0) {
+          showPopup("王鸿的小信箱", "现在还没有新的留言。");
+          return;
+        }
+
+        const content = data
+          .slice()
+          .reverse()
+          .map((item, index) => {
+            return `第 ${index + 1} 条
+
+类型：${item.category || "悄悄话"}
+心情：${item.mood || "未选择"}
+时间：${item.time || "未知时间"}
+
+${item.message || ""}`;
+          })
+          .join("\n\n————————————\n\n");
+
+        showPopup("王鸿的小信箱", content);
+      } catch (error) {
+        showPopup("暂时看不到留言", "现在好像暂时读不到留言，等一下再试试。");
+      }
+    }
+
+    function initMap() {
+      if (!window.L) return;
+
+      const kl = [3.139, 101.6869];
+      const gz = [26.647, 106.6302];
+
+      const map = L.map("loveMap", {
+        scrollWheelZoom: false
+      }).setView([15.1, 104.4], 4);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(map);
+
+      const klMarker = L.marker(kl).addTo(map).bindPopup("王鸿在吉隆坡");
+      L.marker(gz).addTo(map).bindPopup("杨念在贵州");
+
+      L.polyline([kl, gz], {
+        color: "#ff82b4",
+        weight: 4,
+        opacity: 0.85,
+        dashArray: "8, 10"
+      }).addTo(map);
+
+      const distance = getDistanceKm(kl[0], kl[1], gz[0], gz[1]);
+      document.getElementById("distanceText").innerHTML = `直线距离大约 ${Math.round(distance).toLocaleString()} 公里<br>但我知道，想见你这件事不会被距离打败。`;
+
+      setTimeout(() => {
+        map.invalidateSize();
+        map.fitBounds([kl, gz], { padding: [30, 30] });
+      }, 300);
+
+      klMarker.openPopup();
+    }
+
+    function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function toRad(value) {
+      return value * Math.PI / 180;
+    }
 
     function createBackgroundGlow() {
-      const colors = [
-        "rgba(255,132,176,0.28)",
-        "rgba(152,188,255,0.22)",
-        "rgba(255,255,255,0.16)"
-      ];
+      const colors = ["rgba(255,132,176,.28)", "rgba(152,188,255,.22)", "rgba(255,255,255,.16)"];
 
       for (let i = 0; i < 6; i++) {
         const g = document.createElement("div");
@@ -1369,14 +789,13 @@ WH ❤ YN
       h.style.setProperty("--driftX", `${Math.random() * 240 - 120}px`);
       h.style.setProperty("--rotateDeg", `${Math.random() * 80 - 40}deg`);
       loveBurstOverlay.appendChild(h);
-
       setTimeout(() => h.remove(), 5500);
     }
 
     function triggerLoveBurst() {
       if (burstActive) return;
-      burstActive = true;
 
+      burstActive = true;
       loveBurstOverlay.classList.add("show");
 
       for (let i = 0; i < 80; i++) {
@@ -1387,35 +806,31 @@ WH ❤ YN
 
       setTimeout(() => {
         loveBurstOverlay.classList.remove("show");
-        const hearts = loveBurstOverlay.querySelectorAll(".burst-heart");
-        hearts.forEach(h => h.remove());
+        loveBurstOverlay.querySelectorAll(".burst-heart").forEach(h => h.remove());
         burstActive = false;
       }, hideDelay);
     }
 
     function isInteractiveArea(target) {
-      return !!target.closest(
-        "button, input, textarea, .popup-card, .floating-tip"
-      );
+      return !!target.closest("button, input, textarea, .popup-card, .floating-tip, .leaflet-container");
     }
 
-    popup.addEventListener("click", function (e) {
-      if (e.target === popup) closePopup();
+    popup.addEventListener("click", function(e) {
+      if (e.target === popup) {
+        closePopup();
+      }
     });
 
-    document.addEventListener("pointerdown", function (e) {
+    document.addEventListener("pointerdown", function(e) {
       if (popup.classList.contains("show")) return;
 
-      const x = e.clientX;
-      const y = e.clientY;
-
-      burstHearts(x, y, 7);
+      burstHearts(e.clientX, e.clientY, 7);
 
       if (isInteractiveArea(e.target)) return;
 
       blankTapCount++;
-
       clearTimeout(blankTapTimer);
+
       blankTapTimer = setTimeout(() => {
         blankTapCount = 0;
       }, 1400);
@@ -1426,15 +841,19 @@ WH ❤ YN
       }
     }, { passive: true });
 
+    setupChoices();
     createBackgroundGlow();
     createStars();
     updateCounter();
     runTypewriter();
+    initMap();
 
     setInterval(updateCounter, 1000);
     setInterval(createHeart, 700);
     setInterval(() => {
-      if (Math.random() > 0.55) createMeteor();
+      if (Math.random() > 0.55) {
+        createMeteor();
+      }
     }, 2600);
   </script>
 </body>
