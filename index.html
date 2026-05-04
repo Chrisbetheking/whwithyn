@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head> 
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -251,7 +251,7 @@
 
       <div class="mailbox-actions">
         <button class="b1" onclick="sendSecretMessage()">发给王鸿 💖</button>
-        <button class="b5" onclick="openOwnerInbox()">王鸿查看留言 🔐</button>
+        <button class="b5" onclick="clearMailboxForm()">重新写一句</button>
       </div>
 
       <div class="mailbox-result" id="mailboxResult"></div>
@@ -289,9 +289,14 @@
     <div class="love-burst-text">王鸿会一直认真喜欢杨念</div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
+    const EMAILJS_PUBLIC_KEY = "UQkavrAgxXWtrvV2U";
+    const EMAILJS_SERVICE_ID = "service_whyn1314";
+    const EMAILJS_TEMPLATE_ID = "template_djmbxtd";
+
     const LOVE_PASSWORD = "260204";
     const loveDate = new Date("2026-02-04T00:00:00");
 
@@ -316,6 +321,12 @@
 
     let selectedType = "想你了";
     let selectedMood = "开心";
+
+    if (window.emailjs) {
+      emailjs.init({
+        publicKey: EMAILJS_PUBLIC_KEY
+      });
+    }
 
     const mainText = `杨念，
 
@@ -562,6 +573,12 @@ WH ❤ YN
       promiseText.textContent = next;
     }
 
+    function clearMailboxForm() {
+      document.getElementById("mailboxPassword").value = "";
+      document.getElementById("mailboxMessage").value = "";
+      mailboxResult.textContent = "好，那就重新写一句。";
+    }
+
     async function sendSecretMessage() {
       const password = document.getElementById("mailboxPassword").value.trim();
       const message = document.getElementById("mailboxMessage").value.trim();
@@ -576,79 +593,39 @@ WH ❤ YN
         return;
       }
 
+      if (!window.emailjs) {
+        mailboxResult.textContent = "EmailJS 没有加载成功，刷新一下再试试。";
+        return;
+      }
+
       mailboxResult.textContent = "正在把这句话送给王鸿……";
 
+      const time = new Date().toLocaleString("zh-CN", { hour12: false });
+      const name = "杨念";
+
+      const params = {
+        from_name: name,
+        user_name: name,
+        name: name,
+        category: selectedType,
+        mood: selectedMood,
+        message: message,
+        love_message: message,
+        content: `类型：${selectedType}\n心情：${selectedMood}\n内容：${message}`,
+        time: time,
+        to_name: "王鸿",
+        couple: "WH & YN"
+      };
+
       try {
-        const apiRes = await fetch("/api/secret-message", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            password,
-            message,
-            category: selectedType,
-            mood: selectedMood
-          })
-        });
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
 
-        const apiData = await apiRes.json();
-
-        if (!apiRes.ok) {
-          mailboxResult.textContent = apiData.error || "好像没有发送成功，等一下再试试。";
-          return;
-        }
-
-        if (apiData.emailSent) {
-          mailboxResult.textContent = "发送成功啦，王鸿会看到的 💖";
-        } else {
-          mailboxResult.textContent = "留言保存成功啦，王鸿可以在小信箱里看到。";
-        }
-
+        mailboxResult.textContent = "发送成功啦，王鸿会看到的 💖";
         document.getElementById("mailboxMessage").value = "";
         document.getElementById("mailboxPassword").value = "";
         showerOfHearts(14);
       } catch (error) {
-        mailboxResult.textContent = "现在好像暂时发不出去，等一下再试试。";
-      }
-    }
-
-    async function openOwnerInbox() {
-      const ownerPassword = prompt("请输入王鸿查看留言的密码：");
-
-      if (!ownerPassword) return;
-
-      try {
-        const res = await fetch(`/api/admin-messages?password=${encodeURIComponent(ownerPassword.trim())}`);
-        const data = await res.json();
-
-        if (!res.ok) {
-          showPopup("暂时看不到留言", data.error || "密码不对，暂时看不到留言。");
-          return;
-        }
-
-        if (!Array.isArray(data) || data.length === 0) {
-          showPopup("王鸿的小信箱", "现在还没有新的留言。");
-          return;
-        }
-
-        const content = data
-          .slice()
-          .reverse()
-          .map((item, index) => {
-            return `第 ${index + 1} 条
-
-类型：${item.category || "悄悄话"}
-心情：${item.mood || "未选择"}
-时间：${item.time || "未知时间"}
-
-${item.message || ""}`;
-          })
-          .join("\n\n————————————\n\n");
-
-        showPopup("王鸿的小信箱", content);
-      } catch (error) {
-        showPopup("暂时看不到留言", "现在好像暂时读不到留言，等一下再试试。");
+        mailboxResult.textContent = "现在好像暂时发不出去，检查一下 EmailJS 模板或稍后再试。";
       }
     }
 
